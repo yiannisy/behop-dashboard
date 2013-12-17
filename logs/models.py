@@ -9,7 +9,7 @@ class EventLog(models.Model):
     event_name = models.CharField(max_length=100)
 
 class RttLog(models.Model):
-    timestamp = models.DateTimeField()
+    timestamp = models.FloatField()
     client = models.IPAddressField()
     rtt = models.PositiveIntegerField()
 

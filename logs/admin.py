@@ -10,6 +10,9 @@ class NetflixLogAdmin(admin.ModelAdmin):
 class YoutubeLogAdmin(admin.ModelAdmin):
     list_display = ('timestamp','client','rate')
 
+class RttLogAdmin(admin.ModelAdmin):
+    list_display = ('timestamp','client','rtt')
+
 class ClientAdmin(admin.ModelAdmin):
     list_display = ('ip_address', 'type', 'os', 'user', 'bands_5GHz')
     list_filter = ('type','bands_5GHz')
@@ -25,7 +28,7 @@ class ClientAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(EventLog)
-admin.site.register(RttLog)
+admin.site.register(RttLog, RttLogAdmin)
 admin.site.register(NetflixLog, NetflixLogAdmin)
 admin.site.register(YoutubeLog, YoutubeLogAdmin)
 admin.site.register(Client, ClientAdmin)

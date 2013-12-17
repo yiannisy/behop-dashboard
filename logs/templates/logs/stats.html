@@ -9,20 +9,17 @@
 
 <script type="text/javascript"> 
    var data = jQuery.parseJSON("{{ netflix|escapejs }}");
+   var netflix_data = jQuery.parseJSON("{{ netflix|escapejs }}");
+   var youtube_data = jQuery.parseJSON("{{ youtube|escapejs }}");
+   var rtt_data = jQuery.parseJSON("{{ rtt|escapejs }}");
 </script>
 
 <h2>Stats for Netflix</h2>
 <div id="netflix"></div>
-
-
-
 <h2>Stats for Youtube</h2>
 <div id="youtube"></div>
-<p>{{ youtube }}</p>
 <h2>Stats for RTT</h2>
 <div id="rtt"></div>
-<p>{{ rtt }}</p>
-
 
 <script src="/static/rate_json.js"></script>
 {% endblock %}

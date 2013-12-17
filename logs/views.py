@@ -26,8 +26,15 @@ def show_stats(request):
     netflix_rates = [{'ip_address':log.client,'rate':log.rate,'tstamp':str(log.timestamp)} 
                      for log in netflix_logs]
     netflix_rates = json.dumps(netflix_rates)
-    youtube_logs = YoutubeLog.objects.filter(client__in=ip_address, timestamp__gt=datetime(2013,2,1))
+
+    youtube_logs = YoutubeLog.objects.filter(client__in=ip_address, timestamp__gt=datetime(2012,1,1))
     youtube_rates = [{'ip_address':log.client, 'rate':log.rate,'tstamp':str(log.timestamp)} 
                      for log in youtube_logs]
     youtube_rates = json.dumps(youtube_rates)
-    return render(request, 'logs/stats.html',{'netflix':netflix_rates,'youtube':youtube_rates,'rtt':[]})
+
+    rtt_logs = RttLog.objects.filter(client__in=ip_address)
+    rtt = [{'ip_address':log.client, 'rtt':log.rtt,'tstamp':str(datetime.fromtimestamp(log.timestamp))}
+           for log in rtt_logs]
+    rtt = json.dumps(rtt)
+
+    return render(request, 'logs/stats.html',{'netflix':netflix_rates,'youtube':youtube_rates,'rtt':rtt})
