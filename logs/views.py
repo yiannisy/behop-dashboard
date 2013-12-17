@@ -5,6 +5,7 @@ from django.views.generic.list import ListView
 from django.core import serializers
 import string
 import json
+from datetime import datetime
 #from django.views.generic.simple import direct_to_template
 
 from models import Client, NetflixLog, YoutubeLog, RttLog
@@ -21,11 +22,11 @@ def show_stats(request):
     client_ids = string.split(request.GET.get('clients'),',')
     clients = Client.objects.filter(pk__in=client_ids)
     ip_address = [client.ip_address for client in clients]
-    netflix_logs = NetflixLog.objects.filter(client__in=ip_address)
+    netflix_logs = NetflixLog.objects.filter(client__in=ip_address, timestamp__gt=datetime(2013,2,1))
     netflix_rates = [{'ip_address':log.client,'rate':log.rate,'tstamp':str(log.timestamp)} 
                      for log in netflix_logs]
     netflix_rates = json.dumps(netflix_rates)
-    youtube_logs = YoutubeLog.objects.filter(client__in=ip_address)
+    youtube_logs = YoutubeLog.objects.filter(client__in=ip_address, timestamp__gt=datetime(2013,2,1))
     youtube_rates = [{'ip_address':log.client, 'rate':log.rate,'tstamp':str(log.timestamp)} 
                      for log in youtube_logs]
     youtube_rates = json.dumps(youtube_rates)
