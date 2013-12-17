@@ -1,17 +1,32 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.shortcuts import render
 from django.views.generic.list import ListView
+from django.core import serializers
+import string
+import json
 #from django.views.generic.simple import direct_to_template
 
-from models import Client
+from models import Client, NetflixLog, YoutubeLog, RttLog
 
 # Create your views here.
-def index(request):
-    return HttpResponse("Ola kala!")
-
-class ClientsListView(ListView):
-    model = Client
-
-def show_clients(request):
-    return direct_to_template(request, template='clients.html',
-                              extra_context={'clients':Client.objects.get_all()})
+def show_stats(request):
+    '''
+    Basic view to show statistics for a given list of clients.
+    Clients are a pk list in the GET request. From this we extract
+    the IP addresses from clients, and then get the desired log entries
+    for Netflix,Youtube, and RTT.
+    Return a page with basic graphs.
+    '''
+    client_ids = string.split(request.GET.get('clients'),',')
+    clients = Client.objects.filter(pk__in=client_ids)
+    ip_address = [client.ip_address for client in clients]
+    netflix_logs = NetflixLog.objects.filter(client__in=ip_address)
+    netflix_rates = [{'ip_address':log.client,'rate':log.rate,'tstamp':str(log.timestamp)} 
+                     for log in netflix_logs]
+    netflix_rates = json.dumps(netflix_rates)
+    youtube_logs = YoutubeLog.objects.filter(client__in=ip_address)
+    youtube_rates = [{'ip_address':log.client, 'rate':log.rate,'tstamp':str(log.timestamp)} 
+                     for log in youtube_logs]
+    youtube_rates = json.dumps(youtube_rates)
+    return render(request, 'logs/stats.html',{'netflix':netflix_rates,'youtube':youtube_rates,'rtt':[]})
