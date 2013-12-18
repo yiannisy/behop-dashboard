@@ -4,7 +4,7 @@ var margin = {top: 20, right: 20, bottom: 100, left: 50},
     height = 500 - margin.top - margin.bottom,
     height2 = 500 - margin2.top - margin2.bottom;
 
-var parseDate = d3.time.format.utc("%Y-%m-%d %H:%M:%S+00:00").parse;
+var parseDate = d3.time.format.utc("%Y-%m-%d %H:%M:%S").parse;
 
 var x = d3.time.scale().range([0, width]),
     x2 = d3.time.scale().range([0, width]);
@@ -29,14 +29,14 @@ var brush = d3.svg.brush()
     .on("brush", brushed);
 
 var line = d3.svg.line()
-    .x(function(d) { return x(parseDate(d.tstamp)); })
-    .y(function(d) { return y(d.rate); });
+    .x(function(d) {  return x(parseDate(d.tstamp.substring(0,19))); })
+    .y(function(d) { return y(d.rtt); });
 
 var line2 = d3.svg.line()
-    .x(function(d) { return x2(parseDate(d.tstamp)); })
-    .y(function(d) { return y2(d.rate); });
+    .x(function(d) { return x2(parseDate(d.tstamp.substring(0,19))); })
+    .y(function(d) { return y2(d.rtt); });
 
-var svg = d3.select("#netflix").append("svg")
+var svg = d3.select("#rtt").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom);
 
@@ -52,11 +52,11 @@ var focus = svg.append("g")
 var context = svg.append("g")
     .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
 
+data = rtt_data;
 console.log(data);
 
-
-x.domain(d3.extent(data, function(d) { return +parseDate(d.tstamp); }));
-y.domain(d3.extent(data, function(d) { return +d.rate; }));
+x.domain(d3.extent(data, function(d) { return +parseDate(d.tstamp.substring(0,19)); }));
+y.domain(d3.extent(data, function(d) { return +d.rtt; }));
 x2.domain(x.domain());
 y2.domain(y.domain());
 
@@ -78,7 +78,7 @@ focus.append("g")
     .attr("y", -12)
     .attr("dy", ".71em")
     .style("text-anchor", "end")
-    .text("Rate");
+    .text("RTT");
 
 context.append("path")
     .datum(data)

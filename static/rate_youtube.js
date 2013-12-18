@@ -36,7 +36,7 @@ var line2 = d3.svg.line()
     .x(function(d) { return x2(parseDate(d.tstamp)); })
     .y(function(d) { return y2(d.rate); });
 
-var svg = d3.select("#netflix").append("svg")
+var svg = d3.select("#youtube").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom);
 
@@ -52,8 +52,7 @@ var focus = svg.append("g")
 var context = svg.append("g")
     .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
 
-console.log(data);
-
+var data = youtube_data;
 
 x.domain(d3.extent(data, function(d) { return +parseDate(d.tstamp); }));
 y.domain(d3.extent(data, function(d) { return +d.rate; }));
