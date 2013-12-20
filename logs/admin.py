@@ -5,13 +5,14 @@ from logs.models import *
 
 
 class NetflixLogAdmin(admin.ModelAdmin):
-    list_display = ('timestamp','client','rate')
+    list_display = ('timestamp','client','rate','dur','bits')
 
 class YoutubeLogAdmin(admin.ModelAdmin):
-    list_display = ('timestamp','client','rate')
+    list_display = ('timestamp','client','rate','dur','bits')
 
 class RttLogAdmin(admin.ModelAdmin):
     list_display = ('timestamp','client','rtt')
+    list_filter = ['client']
 
 class ClientAdmin(admin.ModelAdmin):
     list_display = ('ip_address', 'type', 'os', 'user', 'bands_5GHz')

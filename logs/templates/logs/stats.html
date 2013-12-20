@@ -6,14 +6,19 @@
 {% load staticfiles %}
 <script src="/static/d3.min.js"></script>
 <script src="/static/jquery-1.10.2.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
 
 <script type="text/javascript"> 
-   var data = jQuery.parseJSON("{{ netflix|escapejs }}");
    var netflix_data = jQuery.parseJSON("{{ netflix|escapejs }}");
    var youtube_data = jQuery.parseJSON("{{ youtube|escapejs }}");
    var rtt_data = jQuery.parseJSON("{{ rtt|escapejs }}");
 </script>
 
+<h2>Summary</h2>
+RTT samples : {{ summary.rtt_samples }} <br/>
+Netflix samples : {{ summary.netflix_samples }} <br/>
+Youtube samples : {{ summary.youtube_samples }} <br/>
+Netflix Duration : {{ summary.netflix_dur }}mins <br/>
 <h2>Stats for Netflix</h2>
 <div id="netflix"></div>
 <h2>Stats for Youtube</h2>
@@ -21,6 +26,8 @@
 <h2>Stats for RTT</h2>
 <div id="rtt"></div>
 
-<script src="/static/netflix_cdf.js"></script>
-<script src="/static/rtt_cdf.js"></script>
+<!-- <script src="/static/netflix_cdf.js"></script> -->
+<!-- <script src="/static/youtube_cdf.js"></script> -->
+<script src="/static/stats.js"></script>
+<!-- <script src="/static/rtt_cdf.js"></script> -->
 {% endblock %}
