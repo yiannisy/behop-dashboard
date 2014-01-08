@@ -30,7 +30,7 @@ class ClientAdmin(admin.ModelAdmin):
                     'bytes_dl','bytes_upl','netflix_mins','youtube_mins',
                     'rtt_samples','pkts_dl','pkts_upl',)
     list_filter = ('type','bands_5GHz')
-    search_fields = ('type','os','user')
+    search_fields = ('ip_address','type','os','user')
     actions = ['show_stats']
 
     def show_stats(self, request, queryset):
