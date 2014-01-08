@@ -59,7 +59,7 @@ class TransferLog(models.Model):
 
 class Client(models.Model):
     ip_address = models.IPAddressField()
-    mac_address = models.CharField(max_length=12)
+    mac_address = models.CharField(max_length=12,unique=True)
     user = models.CharField(max_length=40,null=True)
     type = models.CharField(max_length=40,null=True)
     os = models.CharField(max_length=40,null=True)
