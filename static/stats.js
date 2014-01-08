@@ -25,6 +25,10 @@ $(function () {
     }
 
     $('#netflix').highcharts({
+	chart: {
+	    zoomType : 'x',
+	    spacingRight : 20
+	},
         title: {
             text: 'Netflix Video Rate for Studio 5',
             x: -20 //center

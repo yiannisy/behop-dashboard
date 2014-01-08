@@ -24,7 +24,7 @@ def show_stats(request):
     clients = Client.objects.filter(pk__in=client_ids)
     ip_address = [client.ip_address for client in clients]
 
-    since_secs = time() -  3*24*60*60
+    since_secs = time() -  63*24*60*60
 
     netflix_logs = NetflixLog.objects.filter(client__in=ip_address, rate__gt=100,
                                              timestamp__gt=datetime.fromtimestamp(since_secs))
