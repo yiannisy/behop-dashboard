@@ -7,9 +7,9 @@ from datetime import datetime
 import time
 
 class EventLogAdmin(admin.ModelAdmin):
-    list_display = ('timestamp','client','event_name','signal')
-    list_filter = ('client','event_name')
-    search_fields = ('client','event_name')
+    list_display = ('timestamp','client','event_name','signal', 'category')
+    list_filter = ('client','event_name','category')
+    search_fields = ('client','event_name','category')
 
 class NetflixLogAdmin(admin.ModelAdmin):
     list_display = ('location','timestamp','client','rate','dur','bits', 'session_id')
@@ -26,10 +26,11 @@ class TransferLogAdmin(admin.ModelAdmin):
     list_filter = ['client']
 
 class ClientAdmin(admin.ModelAdmin):
-    list_display = ('ip_address', 'mac_address', 'type', 'os', 'user', 'bands_5GHz', 'last_seen','last_heard',
+    list_display = ('ip_address', 'mac_address', 'type', 'os', 'user', 'bands_5GHz', 
+                    'last_seen','last_heard','last_detected',
                     'bytes_dl','bytes_upl','netflix_mins','youtube_mins',
                     'rtt_samples','pkts_dl','pkts_upl',)
-    list_filter = ('type','bands_5GHz')
+    list_filter = ('type','bands_5GHz','last_detected','last_seen','last_heard','user')
     search_fields = ('ip_address','type','os','user')
     actions = ['show_stats']
 
