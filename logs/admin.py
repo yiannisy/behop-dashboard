@@ -26,7 +26,7 @@ class TransferLogAdmin(admin.ModelAdmin):
     list_filter = ['client']
 
 class ClientAdmin(admin.ModelAdmin):
-    list_display = ('ip_address', 'mac_address', 'type', 'os', 'user', 'bands_5GHz', 'last_seen', 
+    list_display = ('ip_address', 'mac_address', 'type', 'os', 'user', 'bands_5GHz', 'last_seen','last_heard',
                     'bytes_dl','bytes_upl','netflix_mins','youtube_mins',
                     'rtt_samples','pkts_dl','pkts_upl',)
     list_filter = ('type','bands_5GHz')

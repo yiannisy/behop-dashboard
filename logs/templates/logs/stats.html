@@ -12,6 +12,8 @@
    var netflix_data = jQuery.parseJSON("{{ netflix|escapejs }}");
    var youtube_data = jQuery.parseJSON("{{ youtube|escapejs }}");
    var rtt_data = jQuery.parseJSON("{{ rtt|escapejs }}");
+   var activity_data = jQuery.parseJSON("{{ activity|escapejs }}");
+   var event_data = jQuery.parseJSON("{{ events|escapejs }}");
 </script>
 
 <h2>Summary</h2>
@@ -19,6 +21,9 @@ RTT samples : {{ summary.rtt_samples }} <br/>
 Netflix samples : {{ summary.netflix_samples }} <br/>
 Youtube samples : {{ summary.youtube_samples }} <br/>
 Netflix Duration : {{ summary.netflix_dur }}mins <br/>
+<h2>Activity</h2>
+<div id="activity"></div>
+<div id="events"></div>
 <h2>Stats for Netflix</h2>
 <div id="netflix"></div>
 <h2>Stats for Youtube</h2>
@@ -26,8 +31,5 @@ Netflix Duration : {{ summary.netflix_dur }}mins <br/>
 <h2>Stats for RTT</h2>
 <div id="rtt"></div>
 
-<!-- <script src="/static/netflix_cdf.js"></script> -->
-<!-- <script src="/static/youtube_cdf.js"></script> -->
 <script src="/static/stats.js"></script>
-<!-- <script src="/static/rtt_cdf.js"></script> -->
 {% endblock %}

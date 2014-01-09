@@ -24,6 +24,105 @@ $(function () {
 	rtt.push([rtt_data[i].rtt, i/rtt_data.length]);
     }
 
+    var dl_data = [];
+    var upl_data = [];
+    var names = ['Bytes DL','Bytes UPL'];
+    var colors = Highcharts.getOptions().colors;    
+    var _date = new Date();
+    for (var i = 0; i < activity_data.length; i++){
+	_date = new Date(activity_data[i].tstamp);
+	dl_data.push([_date.getTime(),activity_data[i].bytes_dl/Math.pow(2,20)]);
+	upl_data.push([_date.getTime(),activity_data[i].bytes_upl/Math.pow(2,20)])
+    }
+    var activity = [];
+    dl_data.sort(function(a,b){
+	return a[0] - b[0]});
+    upl_data.sort(function(a,b){
+	return a[0] - b[0]});
+
+    activity[0] = { name:'Bytes DL', data : dl_data };
+    activity[1] = { name:'Bytes UPL', data : upl_data };
+
+    console.log(event_data);
+    var myevent_data = [];
+    var idx = 1;
+    for (var event in event_data){
+	var data = [];
+	for (i = 0; i < event_data[event].length; i++){
+	    _date = new Date(event_data[event][i].tstamp);
+	    data[i] = [_date.getTime(),idx];
+	}
+	myevent_data.push({name:event,data:data})
+	console.log(event);
+	idx = idx + 1;
+    }
+
+    $('#activity').highcharts({
+	chart: {
+	    zoomType : 'x',
+	    spacingRight : 20
+	},
+
+        title: {
+            text: 'Activity',
+            x: -20 //center
+        },
+	xAxis: {
+	    maxZoon : 7*24*3600000,
+	    type: 'datetime',
+            title: {
+                text: 'Time'
+            },
+        },
+        yAxis: {
+            title: {
+                text: 'Traffic (MB)'
+            },
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: activity
+    });
+
+    $('#events').highcharts({
+	chart: {
+	    zoomType : 'x',
+	    spacingRight : 20
+	},
+
+        title: {
+            text: 'Activity',
+            x: -20 //center
+        },
+	xAxis: {
+	    maxZoon : 7*24*3600000,
+	    type: 'datetime',
+            title: {
+                text: 'Time'
+            },
+        },
+        yAxis: {
+            title: {
+                text: 'Traffic (MB)'
+            },
+	    type : 'category'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: myevent_data
+    });
+
+
+
+
     $('#netflix').highcharts({
 	chart: {
 	    zoomType : 'x',
@@ -112,7 +211,9 @@ $(function () {
             title: {
                 text: 'PDT'
             },
-            tickInterval: 50
+            tickInterval: 50,
+	    min: 0,
+	    max: 1000
         },
         yAxis: {
             title: {

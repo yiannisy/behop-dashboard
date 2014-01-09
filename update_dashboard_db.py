@@ -9,6 +9,13 @@ def last_seen(obj):
         tstamp = rtt_logs[0].timestamp
     return tstamp
 
+def last_heard(obj):
+    tstamp = None
+    event_logs = EventLog.objects.filter(client=obj.mac_address).order_by('-timestamp')
+    if len(event_logs) > 0:
+        tstamp = event_logs[0].timestamp
+    return tstamp
+
 def netflix_mins(obj):
     netflix_logs = NetflixLog.objects.filter(client=obj.ip_address,rate__gt=100)
     dur = sum([log.dur for log in netflix_logs])/(1000*60.0)
@@ -40,9 +47,10 @@ def bytes_upl(obj):
 
 if __name__=='__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE','behop_dashboard.settings')
-    from logs.models import Client,TransferLog, RttLog, NetflixLog,YoutubeLog
+    from logs.models import Client,TransferLog, RttLog, NetflixLog,YoutubeLog,EventLog
     for client in Client.objects.all():
         client.last_seen = last_seen(client)
+        client.last_heard = last_heard(client)
         client.netflix_mins = netflix_mins(client)
         client.youtube_mins = youtube_mins(client)
         client.rtt_samples = rtt_samples(client)
