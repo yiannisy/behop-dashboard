@@ -16,6 +16,7 @@
    var event_data = jQuery.parseJSON("{{ events|escapejs }}");
 </script>
 
+<a href="{% url 'admin:logs_client_changelist' %}">link to admin panel</a>
 <h2>Summary</h2>
 RTT samples : {{ summary.rtt_samples }} <br/>
 Netflix samples : {{ summary.netflix_samples }} <br/>
