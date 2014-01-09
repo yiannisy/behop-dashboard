@@ -11,10 +11,18 @@ def last_seen(obj):
 
 def last_heard(obj):
     tstamp = None
-    event_logs = EventLog.objects.filter(client=obj.mac_address).order_by('-timestamp')
+    event_logs = EventLog.objects.filter(client=obj.mac_address, category='WiFi').order_by('-timestamp')
     if len(event_logs) > 0:
         tstamp = event_logs[0].timestamp
     return tstamp
+
+def last_detected(obj):
+    tstamp = None
+    event_logs = EventLog.objects.filter(client=obj.mac_address, category='Monitor').order_by('-timestamp')
+    if len(event_logs) > 0:
+        tstamp = event_logs[0].timestamp
+    return tstamp
+
 
 def netflix_mins(obj):
     netflix_logs = NetflixLog.objects.filter(client=obj.ip_address,rate__gt=100)
@@ -51,6 +59,7 @@ if __name__=='__main__':
     for client in Client.objects.all():
         client.last_seen = last_seen(client)
         client.last_heard = last_heard(client)
+        client.last_detected = last_detected(client)
         client.netflix_mins = netflix_mins(client)
         client.youtube_mins = youtube_mins(client)
         client.rtt_samples = rtt_samples(client)
