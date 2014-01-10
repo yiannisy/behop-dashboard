@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic.list import ListView
 from django.core import serializers
@@ -12,6 +12,9 @@ from time import time
 from models import *
 
 # Create your views here.
+def home(request):
+    return HttpResponseRedirect("/admin/logs/client")
+
 def show_stats(request):
     '''
     Basic view to show statistics for a given list of clients.
