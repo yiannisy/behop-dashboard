@@ -7,15 +7,17 @@ from datetime import datetime
 import time
 
 class EventLogAdmin(admin.ModelAdmin):
-    list_display = ('timestamp','client','event_name','signal', 'category')
+    list_display = ('timestamp','client','event_name','signal', 'category','band')
     list_filter = ('client','event_name','category')
     search_fields = ('client','event_name','category')
 
 class NetflixLogAdmin(admin.ModelAdmin):
     list_display = ('location','timestamp','client','rate','dur','bits', 'session_id')
+    list_filter = ('location',)
 
 class YoutubeLogAdmin(admin.ModelAdmin):
     list_display = ('location','timestamp','client','rate','dur','bits')
+    list_filter = ('location',)
 
 class RttLogAdmin(admin.ModelAdmin):
     list_display = ('location','timestamp','client','rtt')
@@ -27,10 +29,11 @@ class TransferLogAdmin(admin.ModelAdmin):
 
 class ClientAdmin(admin.ModelAdmin):
     list_display = ('ip_address', 'mac_address', 'type', 'os', 'user', 'bands_5GHz', 
-                    'last_seen','last_heard','last_detected',
-                    'bytes_dl','bytes_upl','netflix_mins','youtube_mins',
+                    'last_seen','last_heard','last_detected_5GHz','last_detected','last_detected_2GHz',
+                    'bytes_dl_last','bytes_upl_last','netflix_mins','youtube_mins','bytes_dl','bytes_upl',
                     'rtt_samples','pkts_dl','pkts_upl',)
-    list_filter = ('type','bands_5GHz','last_detected','last_seen','last_heard','user')
+    list_filter = ('type','bands_5GHz','last_detected','last_seen','last_heard','user',
+                   'last_detected_5GHz','last_detected_2GHz')
     search_fields = ('ip_address','type','os','user')
     actions = ['show_stats']
 

@@ -40,8 +40,8 @@ $(function () {
     upl_data.sort(function(a,b){
 	return a[0] - b[0]});
 
-    activity[0] = { name:'Bytes DL', data : dl_data };
-    activity[1] = { name:'Bytes UPL', data : upl_data };
+    activity[0] = { name:'Bytes DL', step:true, data : dl_data };
+    activity[1] = { name:'Bytes UPL', step:true, data : upl_data };
 
     console.log(event_data);
     var myevent_data = [];

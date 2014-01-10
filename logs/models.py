@@ -16,6 +16,7 @@ class EventLog(models.Model):
     category= models.CharField(max_length=24,default='WiFi')
     event_name = models.CharField(max_length=100)
     signal = models.CharField(max_length=100,blank=True)
+    band = models.CharField(max_length=10, default='unknown')
 
 class RttLog(models.Model):
     location = models.CharField(max_length=2,
@@ -68,6 +69,8 @@ class Client(models.Model):
     last_seen = models.DateTimeField(blank=True,null=True, verbose_name='Last Served')
     last_heard = models.DateTimeField(blank=True,null=True, verbose_name='Last Attempted')
     last_detected = models.DateTimeField(blank=True, null=True, verbose_name='Last Detected')
+    last_detected_5GHz = models.DateTimeField(blank=True, null=True, verbose_name='Last Detected (5GHz)')
+    last_detected_2GHz = models.DateTimeField(blank=True, null=True, verbose_name='Last Detected (2GHz)')    
     netflix_mins = models.FloatField(default=0)
     youtube_mins = models.FloatField(default=0)
     rtt_samples = models.PositiveIntegerField(default=0)
@@ -75,4 +78,7 @@ class Client(models.Model):
     pkts_upl = models.PositiveIntegerField(default=0, verbose_name='UPL (pkts)')
     bytes_dl = models.PositiveIntegerField(default=0,verbose_name='DL (MB)')
     bytes_upl = models.PositiveIntegerField(default=0, verbose_name='UPL (MB)')
+    bytes_dl_last = models.PositiveIntegerField(default=0,verbose_name='Usage (DL-MB)')
+    bytes_upl_last = models.PositiveIntegerField(default=0, verbose_name='Usage (UPL-MB)')
+
     
