@@ -1,4 +1,10 @@
 $(function () {
+    Highcharts.setOptions({
+        global: {
+            useUTC: false
+        }
+    });
+
     netflix_data.sort(function(a,b){
 	return a.rate -b.rate});
     youtube_data.sort(function(a,b){
@@ -43,19 +49,23 @@ $(function () {
     activity[0] = { name:'Bytes DL', step:true, data : dl_data };
     activity[1] = { name:'Bytes UPL', step:true, data : upl_data };
 
-    console.log(event_data);
     var myevent_data = [];
     var idx = 1;
-    for (var event in event_data){
+    var event_names = Object.keys(event_data).sort();
+    console.log(event_names);
+    for (var j = 0; j < event_names.length; j++){
+	var event = event_names[j];
 	var data = [];
 	for (i = 0; i < event_data[event].length; i++){
 	    _date = new Date(event_data[event][i].tstamp);
 	    data[i] = [_date.getTime(),idx];
 	}
+	data.sort(function(a,b){ return a[0]-b[0] });
 	myevent_data.push({name:event,data:data})
-	console.log(event);
 	idx = idx + 1;
+	console.log(data);
     }
+    
 
     $('#activity').highcharts({
 	chart: {
@@ -79,6 +89,12 @@ $(function () {
                 text: 'Traffic (MB)'
             },
         },
+	tooltip: {
+	    formatter: function() {
+		return '<b>' + this.series.name + '</b><br/>' + Highcharts.dateFormat("%A, %b %e, %H:%M:%S",
+										      new Date(this.x));},
+
+	},
         legend: {
             layout: 'vertical',
             align: 'right',
@@ -111,6 +127,12 @@ $(function () {
             },
 	    type : 'category'
         },
+	tooltip: {
+	    formatter: function() {
+		return '<b>' + this.series.name + '</b><br/>' + Highcharts.dateFormat("%A, %b %e, %H:%M:%S",
+										      new Date(this.x));},
+
+	},
         legend: {
             layout: 'vertical',
             align: 'right',
