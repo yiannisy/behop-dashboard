@@ -58,7 +58,22 @@ class TransferLog(models.Model):
     in_bytes = models.PositiveIntegerField()
     out_bytes = models.PositiveIntegerField()
 
+class BandwidthLog(models.Model):
+    location = models.CharField(max_length=2,
+                                choices=LOC_CHOICES,
+                                default='S5')
+    timestamp = models.DateTimeField()
+    client = models.IPAddressField()
+    in_bytes = models.PositiveIntegerField()
+    out_bytes = models.PositiveIntegerField()
+    in_avgrate_bps = models.FloatField()
+    out_avgrate_bps = models.FloatField()
+
+
 class Client(models.Model):
+    location = models.CharField(max_length=2,
+                                choices=LOC_CHOICES,
+                                default='S5')
     ip_address = models.IPAddressField()
     mac_address = models.CharField(max_length=12,unique=True)
     user = models.CharField(max_length=40,null=True)
