@@ -25,7 +25,7 @@ def plot_sessions(sessions, fname, switch):
                     'g.',label='timeout')
     pylab.axvline(switch)
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
-    tick_dates = [datetime(2014,01,i) for i in range(17,26)]
+    tick_dates = [datetime(2014,01,i) for i in range(17,28)]
     plt.gca().set_xticks(tick_dates)
     plt.gca().set_yticks([0,10,100,1000,10000])
     plt.gca().set_yticklabels([0,10,100,1000,10000])
@@ -146,3 +146,14 @@ if __name__=='__main__':
     pylab.ylabel('CDF')
     pylab.savefig('/tmp/client_disassoc_cdf.png')
 
+    pylab.figure()
+    for ss in [(pre_sessions,'pre'),(post_sessions, 'post')]:
+        x = sorted([s['dur'] for s in ss[0]])
+        y = [float(i)/len(x) for i in range(0,len(x))]
+        pylab.plot(x,y,label=ss[1])
+    pylab.legend(loc=4)
+    pylab.xscale('log')
+    pylab.grid()
+    pylab.xlabel('Session Duration (secs)')
+    pylab.ylabel('CDF')
+    pylab.savefig('/tmp/client_cdf.png')
