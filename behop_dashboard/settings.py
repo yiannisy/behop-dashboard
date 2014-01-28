@@ -64,7 +64,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'behopdb',
         'USER':'behop',
-        'PASSWORD':'ofwork'
+        'PASSWORD':'ofwork',
+        'OPTIONS': {'local_infile':1}
     }
 }
 
