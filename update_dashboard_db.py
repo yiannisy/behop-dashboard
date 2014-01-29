@@ -71,19 +71,19 @@ def bytes_upl(obj, since_secs=None):
 if __name__=='__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE','behop_dashboard.settings')
     from logs.models import Client,TransferLog, RttLog, NetflixLog,YoutubeLog,EventLog
-    for client in Client.objects.all():
+    for client in Client.objects.filter(location='S5'):
         client.last_seen = last_seen(client)
         client.last_heard = last_heard(client)
-        client.last_detected = last_detected(client)
-        client.last_detected_2GHz = last_detected(client,band='2.4GHz')
-        client.last_detected_5GHz = last_detected(client,band='5GHz')
-        client.netflix_mins = netflix_mins(client)
-        client.youtube_mins = youtube_mins(client)
-        client.rtt_samples = rtt_samples(client)
-        client.pkts_dl = pkts_dl(client)
-        client.pkts_upl = pkts_upl(client)
-        client.bytes_dl = bytes_dl(client)
-        client.bytes_upl = bytes_upl(client)
+        #client.last_detected = last_detected(client)
+        #client.last_detected_2GHz = last_detected(client,band='2.4GHz')
+        #client.last_detected_5GHz = last_detected(client,band='5GHz')
+        #client.netflix_mins = netflix_mins(client)
+        #client.youtube_mins = youtube_mins(client)
+        #client.rtt_samples = rtt_samples(client)
+        #client.pkts_dl = pkts_dl(client)
+        #client.pkts_upl = pkts_upl(client)
+        #client.bytes_dl = bytes_dl(client)
+        #client.bytes_upl = bytes_upl(client)
         client.bytes_dl_last = bytes_dl(client, since_secs = DAY_SECS)
         client.bytes_upl_last = bytes_upl(client, since_secs = DAY_SECS)
 

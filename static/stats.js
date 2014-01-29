@@ -70,7 +70,8 @@ $(function () {
     $('#activity').highcharts({
 	chart: {
 	    zoomType : 'x',
-	    spacingRight : 20
+	    spacingRight : 20,
+	    type : 'scatter',
 	},
 
         title: {

@@ -12,10 +12,10 @@ class EventLog(models.Model):
                                 default='S5')
     timestamp = models.DateTimeField()
     client = models.CharField(max_length=12)
-    dpid = models.CharField(max_length=12, blank=True)
+    dpid = models.CharField(max_length=12, blank=True,default='')
     category= models.CharField(max_length=24,default='WiFi')
     event_name = models.CharField(max_length=100)
-    signal = models.CharField(max_length=100,blank=True)
+    event_signal = models.CharField(max_length=100,blank=True,default='')
     band = models.CharField(max_length=10, default='unknown')
 
 class RttLog(models.Model):

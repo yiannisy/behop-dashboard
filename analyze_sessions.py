@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-from datetime import datetime
+from datetime import datetime,timedelta
 import time
 import sys
 import matplotlib
@@ -39,121 +39,147 @@ def plot_sessions(sessions, fname, switch):
     pylab.savefig(fname)
 
 
+def analyze_s5_sessions():
+    interesting_events = ['HostTimeout','AssocReq','ReassocReq','DisassocReq','DeauthReq']
+    clients = EventLog.objects.filter(location='S5',event_signal__in=interesting_events).values('client').distinct()
+    s5_events = EventLog.objects.filter(location='S5',event_signal__in=interesting_events).order_by('timestamp')
+    
+    clients = [c['client'] for c in clients]
+    all_sessions = []
+    print "WiFi events for %d clients" % len(clients)
+    for client in clients:
+        events = [e for e in s5_events if e.client==client]
+        on_session = False
+        sessions = []
+        for e in events:
+            if ((on_session == False) and (e.event_signal == 'AssocReq' or e.event_signal == 'ReassocReq')):
+                start = e.timestamp
+                on_session = True
+                continue
+            if ((on_session == True) and (e.event_signal == 'DisassocReq' or e.event_signal == 'DeauthReq' or e.event_signal == 'HostTimeout')):
+                end = e.timestamp
+                on_session = False
+                if e.event_signal == 'HostTimeout':
+                    reason = 'timeout'
+                    end = end - timedelta(minutes=5)
+                else:
+                    reason = 'disassoc'
+                sessions.append({'end':end,'start':start,'dur':end-start,'sig':e.event_signal,
+                                 'client':client,'reason':reason})
+        all_sessions += sessions
+
+    
+    all_durs = sorted([s['dur'].total_seconds() for s in all_sessions])
+    all_durs_disassoc = sorted([s['dur'].total_seconds() for s in all_sessions if s['reason'] == 'disassoc'])
+    all_durs_timeout = sorted([s['dur'].total_seconds() for s in all_sessions if s['reason'] == 'timeout'])
+    print "Total Sessions Detected : %d" % len(all_durs)
+    print "Avg Session Duration %f" % (sum(all_durs)/len(all_durs))
+    print "Median Session Duration %f" % (all_durs[len(all_durs)/2])
+    
+    pylab.figure()
+    for x,label in ((all_durs,'all'),(all_durs_disassoc,'disassoc'),(all_durs_timeout,'timeout')):
+        y = [float(i)/len(x) for i in range(0,len(x))]
+        pylab.plot(x,y,label=label)
+    pylab.title("Session Duration (Studio 5)")
+    pylab.grid()
+    pylab.xlabel("Duration (secs)")
+    pylab.ylabel("CDF")
+    pylab.xscale('log')
+    pylab.legend()
+    pylab.savefig("/tmp/studio5_sessions_cdf.png")
+
+    pylab.figure()
+    client_sessions = [s['client'] for s in all_sessions]
+    clients = set(client_sessions)
+    count_sessions = []
+    print "Anallyzing count for %d clients" % len(clients)
+    for client in clients:
+        count_sessions.append(client_sessions.count(client))
+
+    pylab.figure()
+    x = sorted(count_sessions)
+    y = [float(i)/len(x) for i in range(0,len(x))]
+    pylab.plot(x,y)
+    pylab.title("Session Count per Client (Studio 5)")
+    pylab.grid()
+    pylab.xlabel("# of Sessions")
+    pylab.ylabel("CDF")
+    pylab.xscale('log')
+    pylab.savefig("/tmp/studio5_sessions_count_cdf.png")
+
+
+
+def analyze_s6_sessions():
+    clients = EventLog.objects.filter(location='S6').values('client').distinct()
+    s6_events = EventLog.objects.filter(location='S6').order_by('timestamp')
+    print s6_events[0].timestamp
+    print s6_events[len(s6_events)-1].timestamp
+    clients = [c['client'] for c in clients]
+    all_sessions = []
+    print "WiFi events for %d clients" % len(clients)
+    for client in clients:
+        events = [e for e in s6_events if e.client==client]
+        on_session = False
+        sessions = []
+        for e in events:
+            if ((on_session == False) and (e.event_signal == 'ASSOC_RESP' or e.event_signal == 'REASSOC_RESP' or e.event_name == 'ASSOC_RESP' or e.event_name == 'REASSOC_RESP')):
+                start = e.timestamp
+                on_session = True
+                continue
+            if ((on_session == True) and (e.event_signal == 'ASSOC_RESP' or e.event_signal == 'REASSOC_RESP' or e.event_name == 'ASSOC_RESP' or e.event_name == 'REASSOC_RESP' or e.event_name == 'DEAUTH' or e.event_signal == 'DEAUTH')):
+                end = e.timestamp
+                on_session = False
+                if e.event_name == 'unknown':
+                    sig = e.event_signal
+                else:
+                    sig = e.event_name
+                if sig == 'DEAUTH':
+                    reason = 'deauth'
+                else:
+                    reason = 'roam'
+                sessions.append({'end':end,'start':start,'dur':end-start,'sig':sig,'client':client,'reason':reason})
+        all_sessions += sessions
+
+    all_durs = sorted([s['dur'].total_seconds() for s in all_sessions])
+    all_durs_deauth = sorted([s['dur'].total_seconds() for s in all_sessions if s['reason'] == 'deauth'])
+    all_durs_roam = sorted([s['dur'].total_seconds() for s in all_sessions if s['reason'] == 'roam'])
+    print "Total Sessions Detected : %d" % len(all_durs)
+    print "Avg Session Duration %f" % (sum(all_durs)/len(all_durs))
+    print "Median Session Duration %f" % (all_durs[len(all_durs)/2])
+    
+    pylab.figure()
+    for x,label in ((all_durs,'all'),(all_durs_deauth,'deauth'),(all_durs_roam,'roam')):
+        y = [float(i)/len(x) for i in range(0,len(x))]
+        pylab.plot(x,y,label=label)
+    pylab.title("Session Duration (Studio 6)")
+    pylab.grid()
+    pylab.xlabel("Duration (secs)")
+    pylab.ylabel("CDF")
+    pylab.xscale('log')
+    pylab.legend()
+    pylab.savefig("/tmp/studio6_sessions_cdf.png")
+
+    pylab.figure()
+    client_sessions = [s['client'] for s in all_sessions]
+    count_sessions = []
+    for client in clients:
+        count_sessions.append(client_sessions.count(client))
+
+    pylab.figure()
+    x = sorted(count_sessions)
+    y = [float(i)/len(x) for i in range(0,len(x))]
+    pylab.plot(x,y)
+    pylab.title("Session Count per Client (Studio 6)")
+    pylab.grid()
+    pylab.xlabel("# of Sessions")
+    pylab.ylabel("CDF")
+    pylab.xscale('log')
+    pylab.savefig("/tmp/studio6_sessions_count_cdf.png")
+
 
 
 if __name__=='__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE','behop_dashboard.settings')
     from logs.models import Client,TransferLog, RttLog, NetflixLog,YoutubeLog,EventLog
-    clients = Client.objects.filter(os="Mac OS X",location='S5').values('mac_address').distinct()
-    clients = [cl.values()[0] for cl in clients]
-    print clients
-    print len(clients)
-    all_sessions = {}
-    for client in clients:
-        starting = datetime(2014,1,17,8,tzinfo=pytz.UTC)
-        switch = datetime(2014,1,24,8,tzinfo=pytz.UTC)
-        until = datetime.now()
-        sessions = []
-        events = EventLog.objects.filter(client=client, 
-                                         timestamp__gt=starting,
-                                         timestamp__lt=until).order_by('timestamp')        
-        if len(events) == 0:
-            continue
-        start = events[0].timestamp
-        start_ts = time.mktime(start.timetuple())
-        for e in events:
-            if e.signal == "AssocReq" or e.signal == "ReassocReq":
-                start = e.timestamp
-                start_ts = time.mktime(e.timestamp.timetuple())
-            if e.signal == "DisassocReq" or e.signal == "DeauthReq":
-                end = e.timestamp
-                end_ts = time.mktime(e.timestamp.timetuple())
-                sessions.append({'end':end,'start':start,'dur':end_ts-start_ts,'sig':e.signal})
-            # remove 300sec offset for hosttimeout.
-            if e.signal == "HostTimeout":
-                end = e.timestamp
-                end_ts = time.mktime(e.timestamp.timetuple()) - 300
-                sessions.append({'end':end,'start':start,'dur':end_ts-start_ts,'sig':e.signal})
-        if len(sessions) == 0:
-            continue
-
-        plot_sessions(sessions,'/tmp/client_%s.png' % client, switch)
-
-        #print "\n".join(["%d %s -> %s (%s)" % (s['dur'],s['start'],s['end'],s['sig']) for s in sessions])
-        #print "\n".join(["%s:%s" % (e.timestamp,e.signal) for e in events])
-        
-        all_sessions[client] = sessions
-        
-
-    sessions = []
-    for s in all_sessions.values():
-        sessions += s
-    pre_sessions = [s for s in sessions if s['end'] < switch]
-    post_sessions = [s for s in sessions if s['end'] > switch]
-    pre_sessions = sorted(pre_sessions, key=lambda s:s['dur'])
-    post_sessions = sorted(post_sessions, key=lambda s:s['dur'])
-    sessions = sorted(sessions, key=lambda s:s['dur'])
-    plot_sessions(sessions, '/tmp/client_all.png',switch)
-    timeout_pre_sessions = [s for s in pre_sessions if s['sig'] == "HostTimeout"]
-    disassoc_pre_sessions = [s for s in pre_sessions if s['sig'] != "HostTimeout"]
-    timeout_post_sessions = [s for s in post_sessions if s['sig'] == "HostTimeout"]
-    disassoc_post_sessions = [s for s in post_sessions if s['sig'] != "HostTimeout"]
-
-    print "Total Sessions : %d ( avg dur : %d, med dur : %d )" % \
-        (len(sessions),
-         sum([s['dur'] for s in sessions])/len(sessions),
-         sessions[len(sessions)/2]['dur'])
-    print "Timeout Pre-Sessions : %d ( avg dur : %d, med dur : %d )" % \
-        (len(timeout_pre_sessions),
-         sum([s['dur'] for s in timeout_pre_sessions])/len(timeout_pre_sessions),
-         timeout_pre_sessions[len(timeout_pre_sessions)/2]['dur'])
-    print "Disassoc Pre-Sessions : %d ( avg dur : %d, med dur : %d )" % \
-        (len(disassoc_pre_sessions),
-         sum([s['dur'] for s in disassoc_pre_sessions])/len(disassoc_pre_sessions),
-         disassoc_pre_sessions[len(disassoc_pre_sessions)/2]['dur'])
-
-    print "Timeout Post-Sessions : %d ( avg dur : %d, med dur : %d )" % \
-        (len(timeout_post_sessions),
-         sum([s['dur'] for s in timeout_post_sessions])/len(timeout_post_sessions),
-         timeout_post_sessions[len(timeout_post_sessions)/2]['dur'])
-    print "Disassoc Post-Sessions : %d ( avg dur : %d, med dur : %d )" % \
-        (len(disassoc_post_sessions),
-         sum([s['dur'] for s in disassoc_post_sessions])/len(disassoc_post_sessions),
-         disassoc_post_sessions[len(disassoc_post_sessions)/2]['dur'])
-
-  
-    pylab.figure()
-    for ss in [(timeout_pre_sessions,'timeout-pre'),(timeout_post_sessions, 'timeout-post')]:
-        x = sorted([s['dur'] for s in ss[0]])
-        y = [float(i)/len(x) for i in range(0,len(x))]
-        pylab.plot(x,y,label=ss[1])
-    pylab.legend(loc=4)
-    pylab.xscale('log')
-    pylab.grid()
-    pylab.xlabel('Session Duration (secs)')
-    pylab.ylabel('CDF')
-    pylab.savefig('/tmp/client_timeout_cdf.png')
-
-    pylab.figure()
-    for ss in [(disassoc_pre_sessions,'disassoc-pre'),(disassoc_post_sessions, 'disassoc-post')]:
-        x = sorted([s['dur'] for s in ss[0]])
-        y = [float(i)/len(x) for i in range(0,len(x))]
-        pylab.plot(x,y,label=ss[1])
-    pylab.legend(loc=4)
-    pylab.xscale('log')
-    pylab.grid()
-    pylab.xlabel('Session Duration (secs)')
-    pylab.ylabel('CDF')
-    pylab.savefig('/tmp/client_disassoc_cdf.png')
-
-    pylab.figure()
-    for ss in [(pre_sessions,'pre'),(post_sessions, 'post')]:
-        x = sorted([s['dur'] for s in ss[0]])
-        y = [float(i)/len(x) for i in range(0,len(x))]
-        pylab.plot(x,y,label=ss[1])
-    pylab.legend(loc=4)
-    pylab.xscale('log')
-    pylab.grid()
-    pylab.xlabel('Session Duration (secs)')
-    pylab.ylabel('CDF')
-    pylab.savefig('/tmp/client_cdf.png')
+    analyze_s5_sessions()
+    analyze_s6_sessions()

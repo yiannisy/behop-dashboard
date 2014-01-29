@@ -5,15 +5,35 @@ from django.views.generic.list import ListView
 from django.core import serializers
 import string
 import json
-from datetime import datetime
+from datetime import datetime,timedelta
+from django.utils.timezone import is_naive, now
 from time import time
+import pytz
 #from django.views.generic.simple import direct_to_template
 
 from models import *
 
 # Create your views here.
 def home(request):
-    return HttpResponseRedirect("/admin/logs/client")
+    return HttpResponseRedirect("logs/report")
+
+def report(request):
+    return render(request,'logs/report.html')
+
+def total_usage(request):
+    '''
+    Show total network usage over the last week.
+    '''
+    transfer_logs = TransferLog.objects.filter(timestamp__gt=now() - timedelta(7)).order_by('-timestamp')
+    for delta in [timedelta(0,i) for i in range(0,24*7)]:
+        delta_end = delta + timedelta(0,1)
+        window_start = now() - delta
+        window_end = now() - delta_end
+        _transfers = [log for log in transfer_logs
+                      if log.timestamp > window_start and log.timestamp < window_end]
+        print window_start, _transfers
+        print is_naive(window_start), is_naive(window_end), is_naive(log.timestamp)
+    return HttpResponse("ok")
 
 def show_stats(request):
     '''
@@ -54,7 +74,7 @@ def show_stats(request):
     activity_logs = json.dumps(activity_logs)
 
     event_logs = EventLog.objects.filter(client__in=mac_address, timestamp__gt=datetime.fromtimestamp(since_secs))
-    event_logs = [{'mac_address':log.client, 'event_name':log.event_name,'signal':log.signal,
+    event_logs = [{'mac_address':log.client, 'event_name':log.event_name,'signal':log.event_signal,
                    'tstamp':log.timestamp.isoformat()}
                   for log in event_logs]
     categories = set([e['event_name'] + '<->'+e['signal'] for e in event_logs])
