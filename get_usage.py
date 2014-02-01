@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os
+import os,sys
 from datetime import datetime,timedelta
 from time import time
 import matplotlib
@@ -8,33 +8,33 @@ import pylab
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pytz
+from collections import defaultdict
 
 if __name__=='__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE','behop_dashboard.settings')
     from logs.models import Client,TransferLog, RttLog, NetflixLog,YoutubeLog,EventLog
     starting = datetime(2014,1,4,tzinfo=pytz.UTC)
-    ending = datetime.today() + timedelta(days=2)
+    ending = datetime.today() + timedelta(days=1)
     switch = datetime(2014,1,24,tzinfo=pytz.UTC)
 
-    n_logs = TransferLog.objects.filter(location='S5')
+    n_logs = TransferLog.objects.filter(location='S5',timestamp__gt=starting)
     input = []
     output = []
-    for i in range(starting.day,ending.day):
-        dt_start = datetime(2014,1,i,8,tzinfo=pytz.UTC)
-        dt_end = datetime(2014,1,i+1,8,tzinfo=pytz.UTC)
-        in_bytes = sum([log.in_bytes for log in n_logs if log.timestamp > dt_start and log.timestamp < dt_end])
-        out_bytes = sum([log.out_bytes for log in n_logs if log.timestamp > dt_start and log.timestamp < dt_end])
-        input.append(in_bytes)
-        output.append(out_bytes)
+
+    output = defaultdict(list)
+    
+    for l in n_logs:
+        output[(l.timestamp - starting).days].append(l)
+    dates = output.keys()
                     
     pylab.figure()
-    pylab.plot(matplotlib.dates.date2num([datetime(2014, 1,i, tzinfo=pytz.UTC) 
-                                          for i in range(starting.day,ending.day)]),input,'b.',label='in')
-    pylab.plot(matplotlib.dates.date2num([datetime(2014, 1,i, tzinfo=pytz.UTC) 
-                                          for i in range(starting.day,ending.day)]),output,'r.',label='out')
-    pylab.axvline(switch)
+    pylab.plot_date(matplotlib.dates.date2num([starting + timedelta(days=d) for d in dates]),
+                    [sum([l.in_bytes for l in output[d]]) for d in dates],'b.',label='in')
+    pylab.plot_date(matplotlib.dates.date2num([starting + timedelta(days=d) for d in dates]),
+                    [sum([l.out_bytes for l in output[d]]) for d in dates],'r.',label='out')
+
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
-    tick_dates = [datetime(2014,01,i) for i in range(starting.day,ending.day, (ending.day-starting.day)/8)]
+    tick_dates = [starting + timedelta(days=i) for i in range(0,max(dates),max(dates)/8)]
     plt.gca().set_xticks(tick_dates)
     #plt.gca().set_yticks([0,10,100,1000,10000])
     #plt.gca().set_yticklabels([0,10,100,1000,10000])

@@ -9,6 +9,7 @@ import pylab
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pytz
+from collections import defaultdict, Counter
 
 BEFORE=False
 
@@ -38,17 +39,72 @@ def plot_sessions(sessions, fname, switch):
     
     pylab.savefig(fname)
 
+def plot_daily_session_summary(sessions, since=None, fname=None,label=''):
+    if since == None:
+        since = datetime(2014,1,25,tzinfo=pytz.UTC)
+    d_sessions = defaultdict(list)
+    for s in sessions:
+        d_sessions[(s['end'] - since).days].append(s)
+    dates = d_sessions.keys()
+
+    pylab.figure()
+    pylab.plot_date(matplotlib.dates.date2num([since + timedelta(days=d) for d in dates]),
+                    [len(d_sessions[d]) for d in dates])
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
+    tick_dates = [since + timedelta(days=i) for i in range(max(dates))]
+    plt.gca().set_xticks(tick_dates)
+    plt.gca().set_yticks([0,10,100,1000,10000])
+    plt.gca().set_yticklabels([0,10,100,1000,10000])
+    pylab.xlim([tick_dates[0],tick_dates[-1]])
+    pylab.ylim([-10, 10000])
+    pylab.yscale('log')
+    pylab.xlabel('Day')
+    pylab.ylabel('# of sessions')
+    pylab.title("# of sessions/day (%s)" % (label))
+    pylab.legend(loc=3)
+    
+    pylab.savefig('/tmp/%s_sum.png' % label)
+
+
+    pylab.figure()
+    pylab.plot_date(matplotlib.dates.date2num([since + timedelta(days=d) for d in dates]),
+                    [len(set([s['client'] for s in d_sessions[d]])) for d in dates])
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
+    tick_dates = [since + timedelta(days=i) for i in range(max(dates))]
+    plt.gca().set_xticks(tick_dates)
+    #plt.gca().set_yticks([0,10,100,1000,10000])
+    #plt.gca().set_yticklabels([0,10,100,1000,10000])
+    pylab.xlim([tick_dates[0],tick_dates[-1]])
+    #pylab.ylim([-10, 10000])
+    #pylab.yscale('log')
+    pylab.xlabel('Day')
+    pylab.ylabel('# of clients')
+    pylab.title("# of clients/day (%s)" % (label))
+    pylab.legend(loc=3)
+
+    pylab.savefig('/tmp/%s_clients.png' % label)
+    
+    pylab.savefig(fname)
+
+
+
 
 def analyze_s5_sessions():
     interesting_events = ['HostTimeout','AssocReq','ReassocReq','DisassocReq','DeauthReq']
     clients = EventLog.objects.filter(location='S5',event_signal__in=interesting_events).values('client').distinct()
     s5_events = EventLog.objects.filter(location='S5',event_signal__in=interesting_events).order_by('timestamp')
-    
+
+    print "Got all events from DB"
+    all_events = defaultdict(list)
+    for e in s5_events:
+        all_events[e.client].append(e)
+    print "Sorted per client"
+
     clients = [c['client'] for c in clients]
     all_sessions = []
     print "WiFi events for %d clients" % len(clients)
-    for client in clients:
-        events = [e for e in s5_events if e.client==client]
+    for client in all_events.keys():
+        events = all_events[client]
         on_session = False
         sessions = []
         for e in events:
@@ -68,6 +124,7 @@ def analyze_s5_sessions():
                                  'client':client,'reason':reason})
         all_sessions += sessions
 
+    plot_daily_session_summary(all_sessions,fname='/tmp/s5_sum.png',label='Studio 5')
     
     all_durs = sorted([s['dur'].total_seconds() for s in all_sessions])
     all_durs_disassoc = sorted([s['dur'].total_seconds() for s in all_sessions if s['reason'] == 'disassoc'])
@@ -112,13 +169,16 @@ def analyze_s5_sessions():
 def analyze_s6_sessions():
     clients = EventLog.objects.filter(location='S6').values('client').distinct()
     s6_events = EventLog.objects.filter(location='S6').order_by('timestamp')
-    print s6_events[0].timestamp
-    print s6_events[len(s6_events)-1].timestamp
     clients = [c['client'] for c in clients]
     all_sessions = []
+    print "Got all S6 events from DB"
+    all_events = defaultdict(list)
+    for e in s6_events:
+        all_events[e.client].append(e)
+    print "Sorted per client"
     print "WiFi events for %d clients" % len(clients)
-    for client in clients:
-        events = [e for e in s6_events if e.client==client]
+    for client in all_events.keys():
+        events = all_events[client]
         on_session = False
         sessions = []
         for e in events:
@@ -139,6 +199,8 @@ def analyze_s6_sessions():
                     reason = 'roam'
                 sessions.append({'end':end,'start':start,'dur':end-start,'sig':sig,'client':client,'reason':reason})
         all_sessions += sessions
+
+    plot_daily_session_summary(all_sessions,fname='/tmp/s6_sum.png',label='Studio 6')
 
     all_durs = sorted([s['dur'].total_seconds() for s in all_sessions])
     all_durs_deauth = sorted([s['dur'].total_seconds() for s in all_sessions if s['reason'] == 'deauth'])
@@ -181,5 +243,7 @@ def analyze_s6_sessions():
 if __name__=='__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE','behop_dashboard.settings')
     from logs.models import Client,TransferLog, RttLog, NetflixLog,YoutubeLog,EventLog
+    starting = datetime(2014, 1, 4)
+    #plot_daily_session_summary([],starting,"test")
     analyze_s5_sessions()
     analyze_s6_sessions()
