@@ -1,8 +1,9 @@
 from django.db import models
 
 LOC_CHOICES = (
-    ('S6', 'Studio 6'),
+    ('S6', 'LWAPP 6'),
     ('S5', 'Studio 5'),
+    ('S4', 'LWAPP 5')
 )
 
 # Create your models here.

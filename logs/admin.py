@@ -7,7 +7,7 @@ from datetime import datetime
 import time
 
 class EventLogAdmin(admin.ModelAdmin):
-    list_display = ('timestamp','client','event_name','event_signal', 'category','band','location')
+    list_display = ('timestamp','client','event_name','event_signal', 'dpid','category','band','location')
     list_filter = ('client','event_name','category','location')
     search_fields = ('client','event_name','category')
 
