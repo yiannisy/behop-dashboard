@@ -13,9 +13,9 @@ from collections import defaultdict
 if __name__=='__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE','behop_dashboard.settings')
     from logs.models import Client,TransferLog, RttLog, NetflixLog,YoutubeLog,EventLog
-    starting = datetime(2014,1,4,tzinfo=pytz.UTC)
+    starting = datetime(2014,1,4,tzinfo=pytz.timezone('US/Pacific'))
     ending = datetime.today() + timedelta(days=1)
-    switch = datetime(2014,1,24,tzinfo=pytz.UTC)
+    switch = datetime(2014,1,24,tzinfo=pytz.timezone('US/Pacific'))
 
     n_logs = TransferLog.objects.filter(location='S5',timestamp__gt=starting)
     input = []

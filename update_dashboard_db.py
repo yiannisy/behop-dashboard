@@ -14,7 +14,7 @@ def last_seen(obj):
 
 def last_heard(obj):
     tstamp = None
-    event_logs = EventLog.objects.filter(client=obj.mac_address, category='WiFi').order_by('-timestamp')
+    event_logs = EventLog.objects.filter(client=obj.mac_address, category='WiFi',location='S5').order_by('-timestamp')
     if len(event_logs) > 0:
         tstamp = event_logs[0].timestamp
     return tstamp

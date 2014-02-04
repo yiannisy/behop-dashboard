@@ -38,7 +38,7 @@ class ClientAdmin(admin.ModelAdmin):
                     'bytes_dl_last','bytes_upl_last','netflix_mins','youtube_mins','bytes_dl','bytes_upl',
                     'rtt_samples','pkts_dl','pkts_upl',)
     list_filter = ('type','bands_5GHz','last_detected','last_seen','last_heard','user',
-                   'last_detected_5GHz','last_detected_2GHz','location')
+                   'last_detected','last_detected_5GHz','last_detected_2GHz','location')
     search_fields = ('ip_address','type','os','user','location','mac_address')
     actions = ['show_stats']
 

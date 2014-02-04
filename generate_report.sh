@@ -9,6 +9,7 @@ dst_dir=/home/yiannis/behop_dashboard/static/img/
 
 cp /tmp/usage.png ${dst_dir}
 cp /tmp/s*_sum.png ${dst_dir}
+cp /tmp/s*_clients.png ${dst_dir}
 cp /tmp/client_cdf.png ${dst_dir}
 cp /tmp/netflix_s5.png ${dst_dir}
 cp /tmp/youtube_s5.png ${dst_dir}

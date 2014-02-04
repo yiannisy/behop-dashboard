@@ -52,7 +52,6 @@ $(function () {
     var myevent_data = [];
     var idx = 1;
     var event_names = Object.keys(event_data).sort();
-    console.log(event_names);
     for (var j = 0; j < event_names.length; j++){
 	var event = event_names[j];
 	var data = [];
@@ -63,7 +62,6 @@ $(function () {
 	data.sort(function(a,b){ return a[0]-b[0] });
 	myevent_data.push({name:event,data:data})
 	idx = idx + 1;
-	console.log(data);
     }
     
 
@@ -134,6 +132,7 @@ $(function () {
 										      new Date(this.x));},
 
 	},
+
         legend: {
             layout: 'vertical',
             align: 'right',
