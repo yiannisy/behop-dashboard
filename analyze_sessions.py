@@ -39,7 +39,7 @@ def plot_sessions(sessions, fname, switch):
     
     pylab.savefig(fname)
 
-def plot_daily_session_summary(sessions, since=None, fname=None,label=''):
+def plot_daily_session_summary(sessions, since=None, prefix=None,label=''):
     if since == None:
         since = datetime(2014,1,25,tzinfo=pytz.UTC)
     d_sessions = defaultdict(list)
@@ -63,7 +63,7 @@ def plot_daily_session_summary(sessions, since=None, fname=None,label=''):
     pylab.title("# of sessions/day (%s)" % (label))
     pylab.legend(loc=3)
     
-    pylab.savefig('/tmp/%s_sum.png' % label)
+    pylab.savefig('/tmp/%s_sum.png' % prefix)
 
 
     pylab.figure()
@@ -82,12 +82,8 @@ def plot_daily_session_summary(sessions, since=None, fname=None,label=''):
     pylab.title("# of clients/day (%s)" % (label))
     pylab.legend(loc=3)
 
-    pylab.savefig('/tmp/%s_clients.png' % label)
+    pylab.savefig('/tmp/%s_clients.png' % prefix)
     
-    pylab.savefig(fname)
-
-
-
 
 def analyze_s5_sessions():
     interesting_events = ['HostTimeout','AssocReq','ReassocReq','DisassocReq','DeauthReq']
@@ -124,7 +120,7 @@ def analyze_s5_sessions():
                                  'client':client,'reason':reason})
         all_sessions += sessions
 
-    plot_daily_session_summary(all_sessions,fname='/tmp/s5_sum.png',label='Studio 5')
+    plot_daily_session_summary(all_sessions,prefix='s5',label='Studio 5')
     
     all_durs = sorted([s['dur'].total_seconds() for s in all_sessions])
     all_durs_disassoc = sorted([s['dur'].total_seconds() for s in all_sessions if s['reason'] == 'disassoc'])
@@ -200,7 +196,7 @@ def analyze_s6_sessions():
                 sessions.append({'end':end,'start':start,'dur':end-start,'sig':sig,'client':client,'reason':reason})
         all_sessions += sessions
 
-    plot_daily_session_summary(all_sessions,fname='/tmp/s6_sum.png',label='Studio 6')
+    plot_daily_session_summary(all_sessions,prefix='s6',label='Studio 6')
 
     all_durs = sorted([s['dur'].total_seconds() for s in all_sessions])
     all_durs_deauth = sorted([s['dur'].total_seconds() for s in all_sessions if s['reason'] == 'deauth'])
