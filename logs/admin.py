@@ -15,6 +15,10 @@ class NetflixLogAdmin(admin.ModelAdmin):
     list_display = ('location','timestamp','client','rate','dur','bits', 'session_id')
     list_filter = ('location',)
 
+class NetflixBitrateLogAdmin(admin.ModelAdmin):
+    list_display = ('location','timestamp','client','target','bitrate_up','bitrate_down')
+    list_filter = ('location',)
+
 class YoutubeLogAdmin(admin.ModelAdmin):
     list_display = ('location','timestamp','client','rate','dur','bits')
     list_filter = ('location',)
@@ -31,6 +35,9 @@ class BandwidthLogAdmin(admin.ModelAdmin):
     list_display = ('location','timestamp','client','in_bytes','out_bytes','in_avgrate_bps','out_avgrate_bps')
     list_filter = ['client']
     
+class WifiLogAdmin(admin.ModelAdmin):
+    list_display = ('dpid','timestamp','intf','rx_packets','rx_bytes',
+                    'tx_packets','tx_bytes')
 
 class ClientAdmin(admin.ModelAdmin):
     list_display = ('ip_address', 'mac_address', 'location','type', 'os', 'user', 'bands_5GHz', 
@@ -53,6 +60,7 @@ class ClientAdmin(admin.ModelAdmin):
 admin.site.register(EventLog,EventLogAdmin)
 admin.site.register(RttLog, RttLogAdmin)
 admin.site.register(NetflixLog, NetflixLogAdmin)
+admin.site.register(NetflixBitrateLog, NetflixBitrateLogAdmin)
 admin.site.register(YoutubeLog, YoutubeLogAdmin)
 admin.site.register(TransferLog, TransferLogAdmin)
 admin.site.register(BandwidthLog, BandwidthLogAdmin)

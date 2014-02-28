@@ -6,6 +6,11 @@ LOC_CHOICES = (
     ('S4', 'LWAPP 5')
 )
 
+INTF_CHOICES = (
+    ('wlan0', 'wlan0'),
+    ('wlan1', 'wlan1')
+)
+
 # Create your models here.
 class EventLog(models.Model):
     location = models.CharField(max_length=2,
@@ -37,6 +42,27 @@ class NetflixLog(models.Model):
     bits = models.PositiveIntegerField()
     dur = models.FloatField()
     rate = models.FloatField()
+
+class NetflixBitrateLog(models.Model):
+    location = models.CharField(max_length=2,
+                                choices=LOC_CHOICES,
+                                default='S5')
+    timestamp = models.DateTimeField()
+    client = models.IPAddressField()
+    #src_port = models.PositiveIntegerField(default=0)
+    target = models.IPAddressField()
+    bitrate_down = models.FloatField()
+    bitrate_up = models.FloatField()
+
+class YoutubeBitrateLog(models.Model):
+    location = models.CharField(max_length=2,
+                                choices=LOC_CHOICES,
+                                default='S5')
+    timestamp = models.DateTimeField()
+    client = models.IPAddressField()
+    target = models.IPAddressField()
+    bitrate_down = models.FloatField()
+    bitrate_up = models.FloatField()
 
 class YoutubeLog(models.Model):
     location = models.CharField(max_length=2,
@@ -97,4 +123,20 @@ class Client(models.Model):
     bytes_dl_last = models.PositiveIntegerField(default=0,verbose_name='Usage (DL-MB)')
     bytes_upl_last = models.PositiveIntegerField(default=0, verbose_name='Usage (UPL-MB)')
 
+class BeHopAP(models.Model):
+    location = models.CharField(max_length=2,
+                                choices=LOC_CHOICES,
+                                default='S5')
+    dpid = models.CharField(max_length=12,unique=True)
+    studio = models.PositiveIntegerField(default=0)
     
+class WifiLog(models.Model):
+    dpid = models.CharField(max_length=12,unique=True)
+    intf = models.CharField(max_length=4,
+                            choices=INTF_CHOICES,
+                            default='mon0')
+    timestamp = models.DateTimeField()
+    tx_pkts = models.PositiveIntegerField(default=0)
+    tx_bytes = models.PositiveIntegerField(default=0)
+    rx_pkts = models.PositiveIntegerField(default=0)
+    rx_bytes = models.PositiveIntegerField(default=0)
