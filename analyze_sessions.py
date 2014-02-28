@@ -116,8 +116,9 @@ def analyze_s5_sessions():
                     end = end - timedelta(minutes=5)
                 else:
                     reason = 'disassoc'
-                sessions.append({'end':end,'start':start,'dur':end-start,'sig':e.event_signal,
-                                 'client':client,'reason':reason})
+                if (end != None) and (start != None):
+                    sessions.append({'end':end,'start':start,'dur':end-start,'sig':e.event_signal,
+                                     'client':client,'reason':reason})
         all_sessions += sessions
 
     plot_daily_session_summary(all_sessions,prefix='s5',label='Studio 5')

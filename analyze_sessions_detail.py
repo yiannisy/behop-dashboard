@@ -11,11 +11,12 @@ import matplotlib.dates as mdates
 import pytz
 from collections import defaultdict, Counter
 import pickle
+from util import *
 
 BEFORE=False
 OS="Mac OS X"
-STARTING_DAY = datetime(2014,2,6,tzinfo=pytz.timezone('US/Pacific'))
-END_DAY = datetime(2014,2,7,tzinfo=pytz.timezone('US/Pacific'))
+STARTING_DAY = datetime(2014,2,16,20,tzinfo=pytz.timezone('US/Pacific'))
+END_DAY = datetime(2014,2,19,tzinfo=pytz.timezone('US/Pacific'))
 LOAD_FROM_PKL=False
 
 if len(sys.argv) == 2:
@@ -235,14 +236,14 @@ def load_sessions_from_db():
     '''
     interesting_behop_events = ['HostTimeout','AssocReq','ReassocReq','DisassocReq','DeauthReq']
     interesting_lwapp_events = ['DEAUTH','REASSOC_RESP','ASSOC_RESP']
-    clients = Client.objects.filter(location='S6',os=OS)
-    behop_events = EventLog.objects.filter(location='S6',
+    clients = Client.objects.filter(location='S5',os=OS)
+    behop_events = EventLog.objects.filter(location='S5',
                                            event_signal__in=interesting_behop_events,
                                            client__in=[client.mac_address for client in clients],
                                            timestamp__gt=STARTING_DAY,
                                            timestamp__lt=END_DAY).order_by('timestamp')
     
-    lwapp_events = EventLog.objects.filter(location='S6',
+    lwapp_events = EventLog.objects.filter(location='S4',
                                            event_signal__in=interesting_lwapp_events,
                                            client__in=[client.mac_address for client in clients],
                                            timestamp__gt=STARTING_DAY,
@@ -321,19 +322,6 @@ def get_flat_sessions(sessions):
         all_sessions += sessions[cl]
     return all_sessions
 
-def plot_cdf(lists,fname,xlogscale=False,ylogscale=False,title=''):
-    pylab.figure()
-    for l in lists:
-        x = sorted(l[0])
-        y = [float(i)/len(x) for i in range(len(x))]
-        pylab.plot(x,y,label=l[1])
-    pylab.grid()
-    pylab.legend()
-    if xlogscale:
-        pylab.xscale('log')
-    pylab.title(title)
-    pylab.savefig(fname)
-
 def dump_to_file(l,fname):
     f = open(fname,'wb')
     pickle.dump(l,f)
@@ -364,9 +352,27 @@ def plot_session_timeline(sessions,prefix=fname_prefix):
     annot = {'behop':'b-*','lwapp':'r-*'}
     pylab.figure()
     for s in sessions:
-        pylab.plot([s['start'],s['end']],[offset[s['type']],offset[s['type']]], annot[s['type']])
+        pylab.plot_date(matplotlib.dates.date2num([s['start'],s['end']]),[offset[s['type']],offset[s['type']]],
+                                                  annot[s['type']])
+        #pylab.plot([s['start'],s['end']],[offset[s['type']],offset[s['type']]], annot[s['type']])
     pylab.xlim((STARTING_DAY,END_DAY))
     pylab.ylim([0,3])
+
+    timespan = END_DAY - STARTING_DAY
+    print "Total Seconds %d" % timespan.total_seconds()
+    timeticks = [STARTING_DAY + timedelta(seconds=x) for x in range(0,int(timespan.total_seconds()) + 1, int(timespan.total_seconds()/4))]
+
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d-%H'))
+    plt.gca().set_xticks(timeticks)
+
+    #start = sessions[0]['start']
+    #dates = [(s['end'] - start).days for s in sessions]
+    #print dates                    
+    #plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
+    #tick_dates = [start + timedelta(days=i) for i in range(0,max(dates))]
+    #plt.gca().set_xticks(tick_dates)
+
+
     pylab.savefig('%s_timeline' % (prefix))
 
 if __name__=='__main__':
@@ -385,6 +391,10 @@ if __name__=='__main__':
 
     clients = sessions.keys()
     flat_sessions = get_flat_sessions(sessions)
+    print len(flat_sessions)
+    print flat_sessions[0]['start'],flat_sessions[0]['end']
+    print flat_sessions[-1]['start'],flat_sessions[-1]['end']
+    print flat_sessions[100]['start'],flat_sessions[100]['end']
     plot_sessions_durations(flat_sessions)
     for cl in clients:
         plot_sessions_durations(sessions[cl],"%s_%s" % (fname_prefix,cl))
