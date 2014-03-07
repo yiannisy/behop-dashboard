@@ -32,13 +32,13 @@ $(function () {
 
     var dl_data = [];
     var upl_data = [];
-    var names = ['Bytes DL','Bytes UPL'];
+    var names = ['Pkts-DL','Pkts-UL'];
     var colors = Highcharts.getOptions().colors;    
     var _date = new Date();
-    for (var i = 0; i < activity_data.length; i++){
-	_date = new Date(activity_data[i].tstamp);
-	dl_data.push([_date.getTime(),activity_data[i].bytes_dl/Math.pow(2,20)]);
-	upl_data.push([_date.getTime(),activity_data[i].bytes_upl/Math.pow(2,20)])
+    for (var i = 0; i < activity_data_s5.length; i++){
+	_date = new Date(activity_data_s5[i].tstamp);
+	dl_data.push([_date.getTime(),activity_data_s5[i].packets_dl/Math.pow(2,10)]);
+	upl_data.push([_date.getTime(),activity_data_s5[i].packets_upl/Math.pow(2,10)])
     }
     var activity = [];
     dl_data.sort(function(a,b){
@@ -46,8 +46,26 @@ $(function () {
     upl_data.sort(function(a,b){
 	return a[0] - b[0]});
 
-    activity[0] = { name:'Bytes DL', step:true, data : dl_data };
-    activity[1] = { name:'Bytes UPL', step:true, data : upl_data };
+    activity[0] = { name:'Packets DL - BeHop', step:true, data : dl_data };
+    activity[1] = { name:'Packets UL - BeHop', step:true, data : upl_data };
+
+    var dl_data = [];
+    var upl_data = [];
+    for (var i = 0; i < activity_data_s4.length; i++){
+	_date = new Date(activity_data_s4[i].tstamp);
+	dl_data.push([_date.getTime(),activity_data_s4[i].packets_dl/Math.pow(2,10)]);
+	upl_data.push([_date.getTime(),activity_data_s4[i].packets_upl/Math.pow(2,10)])
+    }
+    dl_data.sort(function(a,b){
+	return a[0] - b[0]});
+    upl_data.sort(function(a,b){
+	return a[0] - b[0]});
+
+    activity[2] = { name:'Packets DL - LWAPP', step:true, data : dl_data };
+    activity[3] = { name:'Packets UL - LWAPP', step:true, data : upl_data };
+
+
+
 
     var myevent_data = [];
     var idx = 1;
@@ -85,7 +103,7 @@ $(function () {
         },
         yAxis: {
             title: {
-                text: 'Traffic (MB)'
+                text: 'Packets Per Hour(PPH)'
             },
         },
 	tooltip: {

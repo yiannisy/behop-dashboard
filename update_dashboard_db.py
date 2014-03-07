@@ -7,7 +7,7 @@ DAY_SECS = 24*60*60
 
 def last_seen(obj):
     tstamp = None
-    rtt_logs = TransferLog.objects.filter(client=obj.ip_address).order_by('-timestamp')
+    rtt_logs = TransferLog.objects.filter(client=obj.ip_address,location='S5').order_by('-timestamp')
     if len(rtt_logs) > 0:
         tstamp = rtt_logs[0].timestamp
     return tstamp
@@ -55,7 +55,7 @@ def bytes_dl(obj, since_secs=None):
         since = time() - since_secs
     else:
         since = 0
-    transfer_logs = TransferLog.objects.filter(client=obj.ip_address, 
+    transfer_logs = TransferLog.objects.filter(client=obj.ip_address,location='S5',
                                                timestamp__gt=datetime.fromtimestamp(since))
     return sum([log.in_bytes for log in transfer_logs])/float(2**20)
 
@@ -64,7 +64,7 @@ def bytes_upl(obj, since_secs=None):
         since = time() - since_secs
     else:
         since = 0
-    transfer_logs = TransferLog.objects.filter(client=obj.ip_address, 
+    transfer_logs = TransferLog.objects.filter(client=obj.ip_address,location='S5',
                                                timestamp__gt=datetime.fromtimestamp(since))
     return sum([log.out_bytes for log in transfer_logs])/float(2**20)
 

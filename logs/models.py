@@ -6,10 +6,6 @@ LOC_CHOICES = (
     ('S4', 'LWAPP 5')
 )
 
-INTF_CHOICES = (
-    ('wlan0', 'wlan0'),
-    ('wlan1', 'wlan1')
-)
 
 # Create your models here.
 class EventLog(models.Model):
@@ -130,13 +126,21 @@ class BeHopAP(models.Model):
     dpid = models.CharField(max_length=12,unique=True)
     studio = models.PositiveIntegerField(default=0)
     
-class WifiLog(models.Model):
-    dpid = models.CharField(max_length=12,unique=True)
-    intf = models.CharField(max_length=4,
-                            choices=INTF_CHOICES,
-                            default='mon0')
+class WifiIntfLog(models.Model):
+    dpid = models.CharField(max_length=12)
+    intf = models.CharField(max_length=12)
     timestamp = models.DateTimeField()
     tx_pkts = models.PositiveIntegerField(default=0)
     tx_bytes = models.PositiveIntegerField(default=0)
     rx_pkts = models.PositiveIntegerField(default=0)
     rx_bytes = models.PositiveIntegerField(default=0)
+
+class ChannelUtilLog(models.Model):
+    dpid = models.CharField(max_length=12)
+    intf = models.CharField(max_length=12)
+    freq = models.IntegerField(default=0)
+    timestamp = models.DateTimeField()
+    active = models.FloatField(default=0)
+    busy = models.FloatField(default=0)
+    receive = models.FloatField(default=0)
+    transmit = models.FloatField(default=0)

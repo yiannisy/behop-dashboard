@@ -48,7 +48,8 @@ def show_stats(request):
     ip_address = [client.ip_address for client in clients]
     mac_address = [client.mac_address for client in clients]
 
-    since_secs = time() -  63*24*60*60
+    # show only data for last week.
+    since_secs = time() -  7*24*60*60
 
     netflix_logs = NetflixLog.objects.filter(client__in=ip_address, rate__gt=100,
                                              timestamp__gt=datetime.fromtimestamp(since_secs))
@@ -68,10 +69,17 @@ def show_stats(request):
     rtt = json.dumps(rtt)
 
     transfer_logs = TransferLog.objects.filter(client__in=ip_address, timestamp__gt=datetime.fromtimestamp(since_secs))
-    activity_logs = [{'ip_address':log.client, 'bytes_dl':log.in_bytes,'bytes_upl':log.out_bytes,
+    activity_logs_s5 = [{'ip_address':log.client, 'bytes_dl':log.in_bytes,'bytes_upl':log.out_bytes,
+                      'packets_dl':log.in_pkts,'packets_upl':log.out_pkts,
                       'tstamp':log.timestamp.isoformat()}
-                     for log in transfer_logs]
-    activity_logs = json.dumps(activity_logs)
+                     for log in transfer_logs if log.location=='S5']
+    activity_logs_s4 = [{'ip_address':log.client, 'bytes_dl':log.in_bytes,'bytes_upl':log.out_bytes,
+                      'packets_dl':log.in_pkts,'packets_upl':log.out_pkts,
+                      'tstamp':log.timestamp.isoformat()}
+                     for log in transfer_logs if log.location=='S4']
+
+    activity_logs_s5 = json.dumps(activity_logs_s5)
+    activity_logs_s4 = json.dumps(activity_logs_s4)
 
     event_logs = EventLog.objects.filter(client__in=mac_address, timestamp__gt=datetime.fromtimestamp(since_secs))
     event_logs = [{'mac_address':log.client, 'event_name':log.event_name,'signal':log.event_signal,
@@ -95,4 +103,6 @@ def show_stats(request):
 
     return render(request, 'logs/stats.html',{'netflix':netflix_rates,'youtube':youtube_rates,
                                               'events':event_logs,
-                                              'activity':activity_logs,'rtt':rtt, 'summary':summary})
+                                              'activity_s5':activity_logs_s5,
+                                              'activity_s4':activity_logs_s4,
+                                              'rtt':rtt, 'summary':summary})
