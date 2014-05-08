@@ -49,16 +49,9 @@ class NetflixBitrateLog(models.Model):
     target = models.IPAddressField()
     bitrate_down = models.FloatField()
     bitrate_up = models.FloatField()
+    packetrate_down = models.FloatField(default=0)
+    packetrate_up = models.FloatField(default=0)
 
-class YoutubeBitrateLog(models.Model):
-    location = models.CharField(max_length=2,
-                                choices=LOC_CHOICES,
-                                default='S5')
-    timestamp = models.DateTimeField()
-    client = models.IPAddressField()
-    target = models.IPAddressField()
-    bitrate_down = models.FloatField()
-    bitrate_up = models.FloatField()
 
 class YoutubeLog(models.Model):
     location = models.CharField(max_length=2,
@@ -69,6 +62,19 @@ class YoutubeLog(models.Model):
     bits = models.PositiveIntegerField()
     dur = models.FloatField()
     rate = models.FloatField()
+
+class YoutubeBitrateLog(models.Model):
+    location = models.CharField(max_length=2,
+                                choices=LOC_CHOICES,
+                                default='S5')
+    timestamp = models.DateTimeField()
+    client = models.IPAddressField()
+    target = models.IPAddressField()
+    bitrate_down = models.FloatField()
+    bitrate_up = models.FloatField()
+    packetrate_down = models.FloatField(default=0)
+    packetrate_up = models.FloatField(default=0)
+
 
 class TransferLog(models.Model):
     location = models.CharField(max_length=2,

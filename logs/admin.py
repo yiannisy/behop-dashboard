@@ -16,12 +16,18 @@ class NetflixLogAdmin(admin.ModelAdmin):
     list_filter = ('location',)
 
 class NetflixBitrateLogAdmin(admin.ModelAdmin):
-    list_display = ('location','timestamp','client','target','bitrate_up','bitrate_down')
-    list_filter = ('location',)
+    list_display = ('location','timestamp','client','target','bitrate_up','bitrate_down','packetrate_up','packetrate_down')
+    list_filter = ('location','client','timestamp')
+    search_fields = ('client','location')
 
 class YoutubeLogAdmin(admin.ModelAdmin):
     list_display = ('location','timestamp','client','rate','dur','bits')
     list_filter = ('location',)
+
+class YoutubeBitrateLogAdmin(admin.ModelAdmin):
+    list_display = ('location','timestamp','client','target','bitrate_up','bitrate_down','packetrate_up','packetrate_down')
+    list_filter = ('location','client')
+    search_fields = ('client','location')
 
 class RttLogAdmin(admin.ModelAdmin):
     list_display = ('location','timestamp','client','rtt')
@@ -29,12 +35,12 @@ class RttLogAdmin(admin.ModelAdmin):
 
 class TransferLogAdmin(admin.ModelAdmin):
     list_display = ('location','timestamp','client','in_pkts','out_pkts','in_bytes','out_bytes')
-    list_filter = ['client','location']
+    list_filter = ['client','location','timestamp']
 
 
 class BandwidthLogAdmin(admin.ModelAdmin):
     list_display = ('location','timestamp','client','in_bytes','out_bytes','in_avgrate_bps','out_avgrate_bps')
-    list_filter = ['client']
+    list_filter = ['client','timestamp','location']
     
 class WifiIntfLogAdmin(admin.ModelAdmin):
     list_display = ('dpid','timestamp','intf','rx_pkts','rx_bytes',
@@ -51,7 +57,7 @@ class ChannelUtilLogAdmin(admin.ModelAdmin):
 
 class ClientAdmin(admin.ModelAdmin):
     list_display = ('ip_address', 'mac_address', 'location','type', 'os', 'user', 'bands_5GHz', 
-                    'last_seen','last_heard','last_detected_5GHz','last_detected','last_detected_2GHz',
+                    'last_seen','last_heard',
                     'bytes_dl_last','bytes_upl_last','netflix_mins','youtube_mins','bytes_dl','bytes_upl',
                     'rtt_samples','pkts_dl','pkts_upl',)
     list_filter = ('type','bands_5GHz','last_detected','last_seen','last_heard','user',
@@ -72,6 +78,7 @@ admin.site.register(RttLog, RttLogAdmin)
 admin.site.register(NetflixLog, NetflixLogAdmin)
 admin.site.register(NetflixBitrateLog, NetflixBitrateLogAdmin)
 admin.site.register(YoutubeLog, YoutubeLogAdmin)
+admin.site.register(YoutubeBitrateLog, YoutubeBitrateLogAdmin)
 admin.site.register(TransferLog, TransferLogAdmin)
 admin.site.register(BandwidthLog, BandwidthLogAdmin)
 admin.site.register(Client, ClientAdmin)

@@ -103,7 +103,7 @@ $(function () {
         },
         yAxis: {
             title: {
-                text: 'Packets Per Hour(PPH)'
+                text: 'Packets Per Hour(KPPH)'
             },
         },
 	tooltip: {
